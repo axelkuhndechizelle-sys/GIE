@@ -5,9 +5,9 @@ description: Build a knowledge graph of the repo (files, imports, Python classes
 
 # graphify
 
-1. Run `python3 .claude/skills/graphify/graphify.py [dossier]` from the repo root (default `.`).
+1. Run `python3 .claude/skills/graphify/graphify.py [dossier]` from the repo root (default `.`; on Windows use `python` or `py` if `python3` is missing).
 2. It writes to `graphify-out/` :
-   - `graph.json` — nodes `{id, type}` and edges `{source, target, kind}`
+   - `graph.json` — nodes `{id, type}` (type: file, function, class, external, asset) and edges `{source, target, kind}`
    - `graph.html` — interactive force graph, self-contained, works offline (drag nodes, pan, wheel zoom, hover for names)
    - `GRAPH_REPORT.md` — counts, most connected nodes, orphan files
 3. Read `GRAPH_REPORT.md` and summarize for the user: key hubs, isolated files, surprising dependencies.
