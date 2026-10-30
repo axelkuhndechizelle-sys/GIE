@@ -1,5 +1,5 @@
-// Textes légaux (checklist « Mentions légales.docx »). À compléter avant publication : EDITOR.
-export const EDITOR = { name: '[Nom de l’éditeur à compléter]', contact: '[Adresse e-mail de contact à compléter]' };
+// Textes légaux (checklist « Mentions légales.docx »).
+export const EDITOR = { name: 'Axel.K', contact: 'axelkuhndechizelle@gmail.com' };
 
 export const LEGAL: [title: string, text: string][] = [
   ['Données enregistrées',
@@ -13,6 +13,6 @@ export const LEGAL: [title: string, text: string][] = [
     'L’appli est gratuite, sans achat intégré ni publicité. Tu es responsable des thèmes et duels que tu crées ; ils restent sur ton appareil. ' +
     'Les classements reflètent uniquement tes réponses dans l’appli : ce n’est ni une analyse psychologique ni un conseil.'],
   ['Mentions légales',
-    `Éditeur : ${EDITOR.name}. Contact : ${EDITOR.contact}. ` +
+    `Éditeur : ${EDITOR.name}, contact : ${EDITOR.contact}. ` +
     'Aucun hébergement : l’appli fonctionne entièrement sur l’appareil. Les emojis sont affichés par les polices du système ; aucune image ni police n’est intégrée.'],
 ];

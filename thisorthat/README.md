@@ -32,7 +32,7 @@ thisorthat/
 │   ├── logic.ts          règles métier pures : validation, tirage, classement
 │   ├── db.ts             SQLite : schéma, migrations, lectures, écritures
 │   ├── seed.ts           thèmes et duels prédéfinis, grille d'emojis
-│   ├── legal.ts          textes légaux (éditeur à compléter)
+│   ├── legal.ts          textes légaux et coordonnées de l'éditeur
 │   └── ui.tsx            composants et couleurs communs
 ├── __tests__/            tests Jest (règles métier + base de données)
 ├── test/sqlite.ts        adaptateur de test : la vraie base SQLite de Node à la place d'expo-sqlite
@@ -131,7 +131,7 @@ L'identifiant de l'appli (`android.package`, `ios.bundleIdentifier`, par exemple
 
 ## Avant publication
 
-1. Compléter l'éditeur et le contact dans `src/legal.ts` ; publier la politique de confidentialité sur une page publique (exigée par les deux stores).
+1. Publier la politique de confidentialité sur une page publique (exigée par les deux stores) ; l'éditeur et le contact sont dans `src/legal.ts`.
 2. Relire les duels prédéfinis et confirmer le nom de l'appli.
 3. Tester sur Android et iPhone avec Expo Go.
 4. Choisir l'identifiant de l'appli et générer les builds avec EAS.
