@@ -29,6 +29,7 @@ const MIGRATIONS = [
      duel_id INTEGER REFERENCES duel ON DELETE SET NULL, a INTEGER NOT NULL REFERENCES proposition, b INTEGER NOT NULL REFERENCES proposition,
      choice INTEGER NOT NULL REFERENCES proposition, answered_at TEXT NOT NULL, UNIQUE(session_id, pos));
    CREATE INDEX answer_duel ON answer(duel_id);`,
+  '', // v2 : contenu prédéfini porté à 100 duels par thème
 ];
 
 export async function init(d: DB) {
@@ -43,22 +44,28 @@ export async function init(d: DB) {
   });
 }
 
+// Une requête par table et par thème (et non trois par duel) : le premier lancement reste rapide malgré ~1 300 duels.
 async function seed() {
-  const t = now();
-  for (const [id, name, duels] of THEMES) {
+  const t = now(), rows = (n: number, k: number) => Array(n).fill(`(${Array(k).fill('?')})`).join();
+  for (const [id, name, txt] of THEMES) {
+    const duels = parseDuels(txt), props = [...new Map(duels.flat().map(p => [keyOf(p.label), p])).entries()];
     await db.runAsync(`INSERT OR IGNORE INTO theme(id, name, origin, created_at, updated_at) VALUES(?, ?, 'pre', ?, ?)`, id, name, t, t);
-    for (const [a, b] of parseDuels(duels))
-      await db.runAsync(`INSERT OR IGNORE INTO duel(theme_id, a, b, origin, created_at, updated_at) VALUES(?, ?, ?, 'pre', ?, ?)`,
-        id, await prop(id, a.label, a.emoji, true), await prop(id, b.label, b.emoji, true), t, t);
+    await db.runAsync(`INSERT INTO proposition(theme_id, label, emoji, key) VALUES ${rows(props.length, 4)} ON CONFLICT DO NOTHING`,
+      ...props.flatMap(([k, p]) => [id, clean(p.label), p.emoji, k]));
+    await db.runAsync(`INSERT OR IGNORE INTO duel(theme_id, a, b, origin, created_at, updated_at)
+      SELECT ?, pa.id, pb.id, 'pre', ?, ? FROM (VALUES ${rows(duels.length, 2)}) v
+      JOIN proposition pa ON pa.theme_id = ? AND pa.key = v.column1 JOIN proposition pb ON pb.theme_id = ? AND pb.key = v.column2
+      WHERE NOT EXISTS (SELECT 1 FROM duel WHERE a = pb.id AND b = pa.id)`,
+      id, t, t, ...duels.flatMap(d => d.map(p => keyOf(p.label))), id, id);
   }
 }
 
 /** Retrouve (même thème + même libellé normalisé) ou crée une proposition ; un emoji saisi remplace l'ancien. */
-async function prop(theme: string, label: string, emoji: string, keep = false) {
+async function prop(theme: string, label: string, emoji: string) {
   const r = await db.getFirstAsync<{ id: number }>(
     `INSERT INTO proposition(theme_id, label, emoji, key) VALUES(?, ?, ?, ?) ON CONFLICT(theme_id, key)
-     DO UPDATE SET emoji = CASE WHEN ? OR excluded.emoji = '' THEN emoji ELSE excluded.emoji END RETURNING id`,
-    theme, clean(label), emoji, keyOf(label), keep ? 1 : 0);
+     DO UPDATE SET emoji = COALESCE(NULLIF(excluded.emoji, ''), emoji) RETURNING id`,
+    theme, clean(label), emoji, keyOf(label));
   return r!.id;
 }
 

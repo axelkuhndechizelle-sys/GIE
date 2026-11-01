@@ -8,7 +8,7 @@ Cadrage complet (fichiers joints, choix techniques, modèle de données, coûts)
 
 ## Fonctionnalités (V1)
 
-- Thèmes prédéfinis (ceux de `Liste.docx`) et thèmes personnels, sélection multiple, « Tout sélectionner », recherche.
+- Thèmes prédéfinis (ceux de `Liste.docx`, plus de 100 duels chacun) et thèmes personnels, sélection multiple, « Tout sélectionner », recherche.
 - Nombre de duels : 10, 20, 50, 100 ou personnalisé (entier, de 1 à 500, jamais plus que le contenu disponible).
 - Duel : deux cartes emoji + texte, progression « 3 / 10 », retour au duel précédent pour changer un choix, sortie et reprise.
 - Création, modification et suppression de thèmes et de duels personnels, emoji choisi dans une grille intégrée.
@@ -70,13 +70,14 @@ Aperçu dans un navigateur : `npx expo start --web`. Le rendu des emojis y dépe
 ## Tests
 
 ```bash
-npm test              # 19 tests : règles métier et base de données réelle (SQLite de Node)
+npm test              # 20 tests : règles métier et base de données réelle (SQLite de Node)
 npm run typecheck     # vérification TypeScript
 ```
 
 | Vérification | Méthode | Résultat (27/10/2026) |
 | --- | --- | --- |
 | Validation des thèmes, duels et du nombre de duels | Jest | Réussi |
+| Contenu prédéfini : au moins 100 duels par thème, sans doublon, emojis lisibles sur Android 9 et plus | Jest | Réussi |
 | Tirage sans doublon, moins vus d'abord, contenu insuffisant | Jest | Réussi |
 | Classement, taux, égalités, portée session ou cumul | Jest | Réussi |
 | Création, modification, suppression de thèmes et de duels | Jest + navigateur | Réussi |

@@ -3,7 +3,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import * as db from '../src/db';
 import { byTheme } from '../src/logic';
-import { THEMES } from '../src/seed';
+import { parseDuels, THEMES } from '../src/seed';
 import { open } from '../test/sqlite';
 
 let close: () => void;
@@ -22,11 +22,12 @@ const play = async (themes: string[], n: number, pick: (s: db.Step) => number = 
 beforeEach(() => fresh());
 afterEach(() => close());
 
-test('contenu prédéfini : 13 thèmes de Liste.docx, chacun avec des duels', async () => {
+test('contenu prédéfini : 13 thèmes de Liste.docx, chacun avec tous ses duels', async () => {
   const themes = await db.listThemes();
   expect(themes.map(t => t.name).sort()).toEqual(THEMES.map(t => t[1]).sort());
   expect(themes.length).toBe(13);
-  expect(themes.every(t => t.n >= 10 && t.origin === 'pre')).toBe(true);
+  expect(themes.every(t => t.origin === 'pre')).toBe(true);
+  expect(Object.fromEntries(themes.map(t => [t.id, t.n]))).toEqual(Object.fromEntries(THEMES.map(([id, , txt]) => [id, parseDuels(txt).length])));
 });
 
 test('thème perso : création, doublon refusé, modification, suppression', async () => {
@@ -101,12 +102,13 @@ test('tirage : les duels déjà vus passent après les nouveaux', async () => {
 
 test('classement cumulé par thème : calculé depuis les réponses, portée session vs cumul', async () => {
   const chat = (s: db.Step) => ([s.a, s.b].find(p => p.label === 'Chat') ?? s.a).id;
-  const s1 = await play(['nature'], 13, chat);
-  await play(['nature'], 13, chat);
+  const all = parseDuels(THEMES.find(t => t[0] === 'nature')![2]), k = all.filter(d => d.some(p => p.label === 'Chat')).length;
+  const s1 = await play(['nature'], all.length, chat); // deux sessions complètes : chaque duel est vu deux fois
+  await play(['nature'], all.length, chat);
   const nature = byTheme(await db.stats()).find(g => g.theme === 'nature')!;
-  expect(nature.answers).toBe(26);
-  expect(nature.ranking[0]).toMatchObject({ label: 'Chat', rank: 1, shown: 4, picked: 4, rate: 100 });
-  expect(byTheme(await db.stats(s1)).find(g => g.theme === 'nature')!.answers).toBe(13);
+  expect(nature.answers).toBe(2 * all.length);
+  expect(nature.ranking.find(r => r.label === 'Chat')).toMatchObject({ rank: 1, shown: 2 * k, picked: 2 * k, rate: 100 });
+  expect(byTheme(await db.stats(s1)).find(g => g.theme === 'nature')!.answers).toBe(all.length);
 });
 
 test('historique conservé après modification ou suppression d’un duel ou d’un thème', async () => {
@@ -148,6 +150,15 @@ test('persistance après fermeture et migration sans perte', async () => {
   expect(await db.getTheme(t)).toMatchObject({ name: 'Musique' });
   expect(await db.listSessions()).toHaveLength(1);
   expect((await db.listThemes()).length).toBe(14);
+  close(); // retour à la version 1 avec moins de contenu et un duel perso inversé : la mise à jour complète sans doublon
+  const old = open(path);
+  await old.db.execAsync(`PRAGMA user_version = 1; DELETE FROM duel WHERE theme_id = 'nature';
+    UPDATE duel SET a = b, b = a, origin = 'user' WHERE id = (SELECT MIN(id) FROM duel WHERE theme_id = 'sport');`);
+  old.close();
+  await fresh(path);
+  const n = Object.fromEntries((await db.listThemes()).map(x => [x.id, x.n]));
+  expect([n.nature, n.sport]).toEqual(['nature', 'sport'].map(id => parseDuels(THEMES.find(x => x[0] === id)![2]).length));
+  expect(await db.listSessions()).toHaveLength(1);
 });
 
 test('effacer toutes les données : retour au contenu prédéfini', async () => {
