@@ -1,6 +1,8 @@
-# Thisorthat
+# DuoDebate
 
 Appli mobile Android et iOS de duels « ceci ou cela » : on choisit entre deux propositions (texte + emoji), par thèmes, puis on consulte le classement de ses préférences par thème. Tout fonctionne hors ligne, sans compte, sans publicité et sans serveur.
+
+Le nom technique reste `thisorthat` (dossier, slug Expo, schéma, base de données) : le changer couperait le lien avec le projet EAS et ferait perdre les données déjà enregistrées.
 
 Cadrage complet (fichiers joints, choix techniques, modèle de données, coûts) : [Thisorthat — Cadrage V1](https://claude.ai/artifact/ExJC6DQvaYL3v5wqvJuYp6).
 

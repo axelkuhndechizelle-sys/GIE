@@ -5,7 +5,7 @@ import { Btn, Page, T, useLoad } from '../src/ui';
 export default function Home() {
   const { data: active } = useLoad(activeSession);
   return (
-    <Page title="Thisorthat">
+    <Page title="DuoDebate">
       <T kind="h1">Ceci ou cela ?</T>
       <T kind="muted">Choisis entre deux propositions et découvre ton classement par thème.</T>
       {active && <Btn title={`Reprendre la session (${active.done} / ${active.total})`} onPress={() => router.push(`/duel?id=${active.id}`)} />}

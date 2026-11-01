@@ -3,7 +3,7 @@ export const EDITOR = { name: 'Axel.K', contact: 'axelkuhndechizelle@gmail.com' 
 
 export const LEGAL: [title: string, text: string][] = [
   ['Données enregistrées',
-    'Thisorthat enregistre uniquement sur ce téléphone : tes thèmes et duels personnels, tes sessions et tes réponses. ' +
+    'DuoDebate enregistre uniquement sur ce téléphone : tes thèmes et duels personnels, tes sessions et tes réponses. ' +
     'Ces données servent seulement à jouer et à calculer tes classements. Rien n’est envoyé sur Internet.'],
   ['Confidentialité',
     'L’appli ne collecte aucune donnée personnelle : pas de compte, pas de publicité, pas de mesure d’audience, pas de traceur ni de cookie. ' +
